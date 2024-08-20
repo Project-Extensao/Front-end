@@ -1,32 +1,21 @@
-import  { useEffect, useState } from 'react';
+
+
+
+import { useState, useEffect } from 'react';
 import axios from 'axios';
+import CampusFilter from './campusFilter';
+import useFilteredProjects from './filterProjects';
 
 const TabelaProjetos = () => {
   const [projetos, setProjetos] = useState([]);
-  const [filteredProjetos, setFilteredProjetos] = useState([]);
-  const [selectedCampus, setSelectedCampus] = useState(''); 
-  const [expandResumoId, setExpandResumoId] = useState(null); // Estado para controlar a expansão do resumo
-
-  const campuses = [
-    "CAMPUS SANTANA DO LIVRAMENTO",
-    "CAMPUS SAO BORJA",
-    "CAMPUS JAGUARAO",
-    "CAMPUS BAGE",
-    "REITORIA",
-    "CAMPUS ALEGRETE",
-    "CAMPUS URUGUAIANA",
-    "CAMPUS SAO GABRIEL",
-    "CAMPUS DOM PEDRITO",
-    "CAMPUS CACAPAVA DO SUL",
-    "CAMPUS ITAQUI"
-  ];
+  const [selectedCampus, setSelectedCampus] = useState('');
+  const [expandResumoId, setExpandResumoId] = useState(null);
 
   useEffect(() => {
     const fetchProjetos = async () => {
       try {
         const response = await axios.get('http://localhost:3333/projetos');
         setProjetos(response.data);
-        setFilteredProjetos(response.data); // Inicialmente, mostra todos os projetos
       } catch (error) {
         console.error('Erro ao buscar projetos:', error);
       }
@@ -35,14 +24,7 @@ const TabelaProjetos = () => {
     fetchProjetos();
   }, []);
 
-  // Função para filtrar os projetos com base no campus selecionado
-  useEffect(() => {
-    if (selectedCampus === '') {
-      setFilteredProjetos(projetos);
-    } else {
-      setFilteredProjetos(projetos.filter(projeto => projeto.unidade_origem === selectedCampus));
-    }
-  }, [selectedCampus, projetos]);
+  const filteredProjetos = useFilteredProjects(projetos, selectedCampus);
 
   const handleCampusChange = (event) => {
     setSelectedCampus(event.target.value);
@@ -52,53 +34,40 @@ const TabelaProjetos = () => {
     setExpandResumoId(expandResumoId === id ? null : id);
   };
 
-  // Total de projetos filtrados
-  const totalProjetos = filteredProjetos.length;
-
   return (
     <div>
-      {/* Filtro de campus */}
+      {/* Filtro de Campus */}
+      <CampusFilter selectedCampus={selectedCampus} handleCampusChange={handleCampusChange} />
+
+    
       <div>
-        <label htmlFor="campus-filter">Filtrar por Campus:</label>
-        <select id="campus-filter" value={selectedCampus} onChange={handleCampusChange}>
-          <option value="">Todos</option>
-          {campuses.map(campus => (
-            <option key={campus} value={campus}>
-              {campus}
-            </option>
-          ))}
-        </select>
+        <h3>Total de resultados encontrados: {filteredProjetos.length}</h3>
       </div>
 
-      {/* Total de resultados */}
-      <div>
-        <h3>Total de resultados encontradados: {totalProjetos}</h3>
-      </div>
-
-      {/* Tabela de projetos */}
+     
       <table>
         <thead>
           <tr>
-            <th>ID Projeto</th>
+            <th>ID</th>
             <th>Modalidade</th>
-            <th>Unidade Origem</th>
-            <th>Título Projeto</th>
+            <th>Unidade de Origem</th>
+            <th>Título do Projeto</th>
             <th>Área de Conhecimento</th>
             <th>Área Temática</th>
             <th>Linha Temática</th>
-            <th>Coord. Projeto</th>
-            <th>Email Coord.</th>
-            <th>Data Início</th>
-            <th>Data Fim</th>
+            <th>Coordenador do Projeto</th>
+            <th>Email do Coordenador</th>
+            <th>Data de Início</th>
+            <th>Data de Fim</th>
             <th>Situação</th>
             <th>Última Alteração</th>
             <th>Palavras-chave</th>
-            <th>Parcerias</th>
             <th>Resumo</th>
+            <th>Parcerias</th>
           </tr>
         </thead>
         <tbody>
-          {filteredProjetos.map(projeto => (
+          {filteredProjetos.map((projeto) => (
             <tr key={projeto.id_projeto}>
               <td>{projeto.id_projeto}</td>
               <td>{projeto.modalidade}</td>
@@ -114,9 +83,7 @@ const TabelaProjetos = () => {
               <td>{projeto.situacao}</td>
               <td>{new Date(projeto.ult_alter_proj).toLocaleDateString()}</td>
               <td>{projeto.palavras_chave}</td>
-              <td>{projeto.parcerias}</td>
               <td>
-                {/* Implementar o dropdown para o resumo */}
                 <div>
                   {expandResumoId === projeto.id_projeto ? (
                     <p>{projeto.resumo}</p>
@@ -128,6 +95,7 @@ const TabelaProjetos = () => {
                   </button>
                 </div>
               </td>
+              <td>{projeto.parcerias || 'N/A'}</td>
             </tr>
           ))}
         </tbody>
