@@ -1,34 +1,33 @@
 
+import Select from 'react-select';
 import PropTypes from 'prop-types';
 
 const SituacaoFilter = ({ selectedSituacoes, handleSituacaoChange }) => {
-  const situacoes = ["Registrado", "Finalizado"];
+  const situacoes = ["Registrado", "Finalizado"]; // Lista de situações que você quer filtrar
 
-  const handleChange = (event) => {
-    const { value, checked } = event.target;
-    if (checked) {
-      // Adiciona a situação à lista de selecionados
-      handleSituacaoChange([...selectedSituacoes, value]);
-    } else {
-      // Remove a situação da lista de selecionados
-      handleSituacaoChange(selectedSituacoes.filter((situacao) => situacao !== value));
-    }
+  // Converte as situações para o formato esperado pelo react-select
+  const options = situacoes.map((situacao) => ({
+    value: situacao,
+    label: situacao,
+  }));
+
+  const handleChange = (selectedOptions) => {
+    // Extrai os valores selecionados
+    const selectedValues = selectedOptions ? selectedOptions.map((option) => option.value) : [];
+    handleSituacaoChange(selectedValues);
   };
 
   return (
     <div>
-      <label>Filtrar por Situação:</label>
-      {situacoes.map((situacao) => (
-        <div key={situacao}>
-          <input
-            type="checkbox"
-            value={situacao}
-            checked={selectedSituacoes.includes(situacao)}
-            onChange={handleChange}
-          />
-          <label>{situacao}</label>
-        </div>
-      ))}
+      <label htmlFor="situacao-filter">Filtrar por Situação:</label>
+      <Select
+        id="situacao-filter"
+        options={options}
+        isMulti
+        value={options.filter((option) => selectedSituacoes.includes(option.value))}
+        onChange={handleChange}
+        placeholder="Selecione as situações"
+      />
     </div>
   );
 };

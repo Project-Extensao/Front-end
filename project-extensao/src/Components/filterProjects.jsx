@@ -22,8 +22,8 @@ const useFilteredProjects = (projetos, selectedCampus, selectedSituacoes, select
       filtered = filtered.filter(projeto => projeto.linha_tematica === selectedLinha);
     }
 
-    if (selectedModalidade) {
-      filtered = filtered.filter(projeto => projeto.modalidade === selectedModalidade);
+    if (selectedModalidade.length > 0) { 
+      filtered = filtered.filter(projeto => selectedModalidade.includes(projeto.modalidade));
     }
 
     if (selectedAno) {

@@ -1,12 +1,20 @@
+// App.js
 
-import Tabela from './Components/tabela';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Navbar from './Components/NavBar';
+import Tabela from './Components/Tabela';
 
 function App() {
   return (
-    <div>
-      <h1>Bem-vindo </h1>
-      <Tabela />
-    </div>
+    <Router>
+      <div>
+        <Navbar />
+        <Routes>
+          <Route path="/" element={<h1>Painel de informações</h1>} />
+          <Route path="/tabela" element={<Tabela />} />
+        </Routes>
+      </div>
+    </Router>
   );
 }
 

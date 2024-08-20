@@ -1,27 +1,41 @@
+import Select from 'react-select';
 import PropTypes from 'prop-types';
 
 const ModalidadeFilter = ({ selectedModalidade, handleModalidadeChange, modalidades }) => {
+  // Verifica se modalidades está definido e é um array
+  if (!Array.isArray(modalidades)) {
+    console.error('Modalidades deve ser um array.');
+    return null;
+  }
+
+  // Converte as modalidades para o formato esperado pelo react-select
+  const options = modalidades.map((modalidade) => ({
+    value: modalidade,
+    label: modalidade,
+  }));
+
+  const handleChange = (selectedOptions) => {
+    // Extrai os valores selecionados
+    const selectedValues = selectedOptions ? selectedOptions.map(option => option.value) : [];
+    handleModalidadeChange(selectedValues);
+  };
+
   return (
     <div>
-      <label htmlFor="modalidade-filter">Filtrar por Modalidade:</label>
-      <select
-        id="modalidade-filter"
-        value={selectedModalidade}
-        onChange={(e) => handleModalidadeChange(e.target.value)}
-      >
-        <option value="">Todas</option>
-        {modalidades.map((modalidade, index) => (
-          <option key={index} value={modalidade}>
-            {modalidade}
-          </option>
-        ))}
-      </select>
+      <label>Filtrar por Modalidade:</label>
+      <Select
+        options={options}
+        isMulti
+        value={options.filter(option => selectedModalidade.includes(option.value))}
+        onChange={handleChange}
+        placeholder="Selecione as modalidades"
+      />
     </div>
   );
 };
 
 ModalidadeFilter.propTypes = {
-  selectedModalidade: PropTypes.string.isRequired,
+  selectedModalidade: PropTypes.arrayOf(PropTypes.string).isRequired,
   handleModalidadeChange: PropTypes.func.isRequired,
   modalidades: PropTypes.arrayOf(PropTypes.string).isRequired,
 };
