@@ -1,14 +1,22 @@
-
-
-
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import CampusFilter from './campusFilter';
+import CampusFilter from './CampusFilter';
+import SituacaoFilter from './situacaoProjects';
+import AreaConhecimentoFilter from './AreaConhecimentoFilter';
+import LinhaTematicaFilter from './linhaTematicaFilter';
+import ModalidadeFilter from './modalidadeFilter';
+import AnoFilter from './anoFilter';
 import useFilteredProjects from './filterProjects';
+import ExportCSVButton from './exportCsv';
 
 const TabelaProjetos = () => {
   const [projetos, setProjetos] = useState([]);
   const [selectedCampus, setSelectedCampus] = useState('');
+  const [selectedSituacoes, setSelectedSituacoes] = useState([]);
+  const [selectedAreas, setSelectedAreas] = useState([]);
+  const [selectedLinha, setSelectedLinha] = useState('');
+  const [selectedModalidade, setSelectedModalidade] = useState('');
+  const [selectedAno, setSelectedAno] = useState('');
   const [expandResumoId, setExpandResumoId] = useState(null);
 
   useEffect(() => {
@@ -24,50 +32,88 @@ const TabelaProjetos = () => {
     fetchProjetos();
   }, []);
 
-  const filteredProjetos = useFilteredProjects(projetos, selectedCampus);
+  // Filtra projetos 
+  const filteredProjetos = useFilteredProjects(projetos, selectedCampus, selectedSituacoes, selectedAreas, selectedLinha, selectedModalidade, selectedAno);
 
   const handleCampusChange = (event) => {
     setSelectedCampus(event.target.value);
+  };
+
+  const handleSituacaoChange = (situacoes) => {
+    setSelectedSituacoes(situacoes);
+  };
+
+  const handleAreaChange = (areas) => {
+    setSelectedAreas(areas);
+  };
+
+  const handleLinhaChange = (linha) => {
+    setSelectedLinha(linha);
+  };
+
+  const handleModalidadeChange = (modalidade) => {
+    setSelectedModalidade(modalidade);
+  };
+
+  const handleAnoChange = (ano) => {
+    setSelectedAno(ano);
   };
 
   const toggleResumo = (id) => {
     setExpandResumoId(expandResumoId === id ? null : id);
   };
 
+  
+  const distinctAreas = [...new Set(projetos.map(projeto => projeto.area_conhecimento))];
+  const distinctLinhas = [...new Set(projetos.map(projeto => projeto.linha_tematica))];
+  const distinctModalidades = [...new Set(projetos.map(projeto => projeto.modalidade))];
+  const distinctAnos = [...new Set(projetos.flatMap(projeto => [
+    new Date(projeto.dt_inicio_proj).getFullYear(),
+    new Date(projeto.dt_fim_proj).getFullYear()
+  ]))].sort((a, b) => b - a); // Ordena anos decrescente
+
   return (
     <div>
-      {/* Filtro de Campus */}
-      <CampusFilter selectedCampus={selectedCampus} handleCampusChange={handleCampusChange} />
-
     
+      <CampusFilter selectedCampus={selectedCampus} handleCampusChange={handleCampusChange} />
+      <SituacaoFilter selectedSituacoes={selectedSituacoes} handleSituacaoChange={handleSituacaoChange} />
+      <AreaConhecimentoFilter selectedAreas={selectedAreas} handleAreaChange={handleAreaChange} areasDeConhecimento={distinctAreas} />
+      <LinhaTematicaFilter selectedLinha={selectedLinha} handleLinhaChange={handleLinhaChange} linhasTematicas={distinctLinhas} />
+      <ModalidadeFilter selectedModalidade={selectedModalidade} handleModalidadeChange={handleModalidadeChange} modalidades={distinctModalidades} />
+      <AnoFilter selectedAno={selectedAno} handleAnoChange={handleAnoChange} anos={distinctAnos} />
+
+   
       <div>
         <h3>Total de resultados encontrados: {filteredProjetos.length}</h3>
-      </div>
 
-     
+      </div>
+      
+       <ExportCSVButton data={filteredProjetos} fileName="projetos.csv" />
+
+      {/* Tabela de projetos */}
       <table>
         <thead>
           <tr>
-            <th>ID</th>
+            <th>ID Projeto</th>
             <th>Modalidade</th>
-            <th>Unidade de Origem</th>
-            <th>Título do Projeto</th>
+            <th>Unidade Origem</th>
+            <th>Título Projeto</th>
             <th>Área de Conhecimento</th>
             <th>Área Temática</th>
             <th>Linha Temática</th>
-            <th>Coordenador do Projeto</th>
-            <th>Email do Coordenador</th>
-            <th>Data de Início</th>
-            <th>Data de Fim</th>
+            <th>Coord. Projeto</th>
+            <th>Email Coord.</th>
+            <th>Data Início</th>
+            <th>Data Fim</th>
             <th>Situação</th>
             <th>Última Alteração</th>
             <th>Palavras-chave</th>
-            <th>Resumo</th>
             <th>Parcerias</th>
+            <th>Resumo</th>
           </tr>
         </thead>
         <tbody>
-          {filteredProjetos.map((projeto) => (
+          {filteredProjetos.map(projeto => (
             <tr key={projeto.id_projeto}>
               <td>{projeto.id_projeto}</td>
               <td>{projeto.modalidade}</td>
@@ -83,6 +129,7 @@ const TabelaProjetos = () => {
               <td>{projeto.situacao}</td>
               <td>{new Date(projeto.ult_alter_proj).toLocaleDateString()}</td>
               <td>{projeto.palavras_chave}</td>
+              <td>{projeto.parcerias}</td>
               <td>
                 <div>
                   {expandResumoId === projeto.id_projeto ? (
@@ -95,7 +142,6 @@ const TabelaProjetos = () => {
                   </button>
                 </div>
               </td>
-              <td>{projeto.parcerias || 'N/A'}</td>
             </tr>
           ))}
         </tbody>
