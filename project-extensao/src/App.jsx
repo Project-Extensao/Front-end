@@ -2,7 +2,7 @@
 
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Navbar from './Components/NavBar';
-import Tabela from './Components/Tabela';
+import Tabela from './Components/tabela';
 
 function App() {
   return (
