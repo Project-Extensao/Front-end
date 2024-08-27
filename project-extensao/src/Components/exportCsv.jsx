@@ -1,5 +1,26 @@
-
 import PropTypes from 'prop-types';
+
+
+
+const formatDate = (date) => {
+  if (!date) return ''; // Retorna uma string vazia se não houver data
+  const d = new Date(date);
+  const day = String(d.getDate()).padStart(2, '0');
+  const month = String(d.getMonth() + 1).padStart(2, '0'); // Meses são baseados em zero
+  const year = d.getFullYear();
+  return `${day}/${month}/${year}`;
+};
+
+// Função para escapar valores de CSV
+const escapeCSVValue = (value) => {
+  if (typeof value === 'string') {
+    // Escapa aspas duplas dentro do valor
+    const escapedValue = value.replace(/"/g, '""');
+    // Adiciona aspas duplas ao redor do valor se contiver vírgulas ou aspas duplas
+    return `"${escapedValue}"`;
+  }
+  return value;
+};
 
 const ExportCSVButton = ({ data, fileName }) => {
   const exportToCSV = () => {
@@ -22,7 +43,7 @@ const ExportCSVButton = ({ data, fileName }) => {
       'resumo',
       'parcerias'
     ];
-    csvRows.push(headers.join(','));
+    csvRows.push(headers.map(escapeCSVValue).join(','));
 
     data.forEach(projeto => {
       const row = [
@@ -35,15 +56,15 @@ const ExportCSVButton = ({ data, fileName }) => {
         projeto.linha_tematica,
         projeto.coord_projeto,
         projeto.email_coord_projeto,
-        projeto.dt_inicio_proj,
-        projeto.dt_fim_proj,
+        formatDate(projeto.dt_inicio_proj),
+        formatDate(projeto.dt_fim_proj),
         projeto.situacao,
-        projeto.ult_alter_proj,
+        formatDate(projeto.ult_alter_proj),
         projeto.palavras_chave,
         projeto.resumo,
         projeto.parcerias
       ];
-      csvRows.push(row.join(','));
+      csvRows.push(row.map(escapeCSVValue).join(','));
     });
 
     const csvString = csvRows.join('\n');
