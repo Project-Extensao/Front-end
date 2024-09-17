@@ -1,3 +1,4 @@
+import Select from 'react-select';
 import PropTypes from 'prop-types';
 
 const CampusFilter = ({ selectedCampus, handleCampusChange }) => {
@@ -15,24 +16,35 @@ const CampusFilter = ({ selectedCampus, handleCampusChange }) => {
     "CAMPUS ITAQUI"
   ];
 
+  // Converte os campus para o formato esperado pelo react-select
+  const options = campuses.map((campus) => ({
+    value: campus,
+    label: campus,
+  }));
+
+  const handleChange = (selectedOptions) => {
+    // Extrai os valores selecionados
+    const selectedValues = selectedOptions ? selectedOptions.map((option) => option.value) : [];
+    handleCampusChange(selectedValues);
+  };
+
   return (
     <div>
       <label htmlFor="campus-filter">Filtrar por Campus:</label>
-      <select id="campus-filter" value={selectedCampus} onChange={handleCampusChange}>
-        <option value="">Todos</option>
-        {campuses.map(campus => (
-          <option key={campus} value={campus}>
-            {campus}
-          </option>
-        ))}
-      </select>
+      <Select
+        id="campus-filter"
+        options={options}
+        isMulti
+        value={options.filter((option) => selectedCampus.includes(option.value))}
+        onChange={handleChange}
+        placeholder="Selecione os campus"
+      />
     </div>
   );
 };
 
-
 CampusFilter.propTypes = {
-  selectedCampus: PropTypes.string.isRequired,
+  selectedCampus: PropTypes.arrayOf(PropTypes.string).isRequired,
   handleCampusChange: PropTypes.func.isRequired,
 };
 

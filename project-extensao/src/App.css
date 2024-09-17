@@ -1,22 +1,16 @@
 /* app.css */
-#root {
-  max-width: 1280px; /* Ajustar se necessário para garantir que o conteúdo não exceda */
-  margin: 0 auto;
-  padding: 2rem;
-  box-sizing: border-box; /* Incluir padding e borda na largura total */
-}
 
 /* Estilo para a Navbar */
 nav {
-  background-color: #333; /* Ajustar a cor de fundo conforme necessário */
+  background-color: #ffffff;
   color: white;
   padding: 1rem;
-  width: 100%; /* Garante que a Navbar ocupe toda a largura da tela */
-  box-sizing: border-box; /* Inclui padding na largura total */
-  position: fixed; /* Mantém a Navbar no topo ao rolar */
+  width: 100vw; /* Usa 100% da largura da viewport */
+  position: fixed;
   top: 0;
   left: 0;
-  z-index: 1000; /* Garante que a Navbar fique acima de outros conteúdos */
+  z-index: 1000;
+  box-sizing: border-box; /* Garante que o padding seja incluso na largura */
 }
 
 nav ul {
@@ -24,7 +18,8 @@ nav ul {
   padding: 0;
   margin: 0;
   display: flex;
-  justify-content: center;
+  justify-content: space-around; /* Distribui os itens com espaço ao redor */
+  width: 100%; /* Garante que os itens ocupem a largura completa */
 }
 
 nav li {
@@ -39,4 +34,10 @@ nav a {
 
 nav a:hover {
   text-decoration: underline;
+}
+
+/* Remover qualquer espaçamento padrão do body para garantir que a navbar esteja colada nas bordas */
+body {
+  margin: 0;
+  padding: 0;
 }
